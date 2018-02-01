@@ -79,6 +79,7 @@ class CycleGAN():
 
     def train(self, n_epochs, batch_iter):
         print('Start training CycleGAN')
+        losses = []
         for epoch in range(n_epochs):
             print(epoch)
             batch = batch_iter.next() # chainer.iterators.MultiProcessIterator
@@ -146,10 +147,10 @@ class CycleGAN():
             self.opt_g.update()
             self.opt_f.update()
 
-            # TODO report losses
+            losses += [(x_loss, y_loss, g_loss, f_loss, cycle_x_loss, cycle_y_loss, gen_loss)]
 
             # TODO store intermediate result every so often.
-            if epoch % 5000 == 0:
+            if False and epoch % 5000 == 0:
                 print(x_loss, y_loss)
                 print(gen_loss, cycle_y_loss, cycle_x_loss)
                 sqrt_pixels = int(np.sqrt(self.n_pixels))
@@ -170,3 +171,12 @@ class CycleGAN():
                 axarr[1].imshow(generated.data.reshape((sqrt_pixels, sqrt_pixels)))
                 axarr[1].set_title('generated sample')
                 plt.show()
+
+        to_plot = [l[-1].data for l in losses]
+        x_axis = list(range(n_epochs))
+        plt.plot(to_plot)
+        plt.title('Loss per epoch of CycleGAN')
+        plt.ylabel('loss')
+        plt.xlabel('epoch')
+        print('last loss:',to_plot[-1])
+        plt.show()
